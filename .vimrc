@@ -72,15 +72,29 @@ set mat=2                 " cursor blinking frequency
 nnoremap j gj
 nnoremap k gk
 
+" Tab controls
 noremap <C-t> :tabnew<CR>       " Ctrl-T : open new tab
 noremap <C-w> :tabclose<CR>     " Ctrl-W : close tab
 inoremap <C-t> :tabnew<CR>      " Ctrl-T : open new tab
 inoremap <C-w> :tabclose<CR>    " Ctrl-W : close tab
 
-noremap <C-n> :NERDTreeTabsToggle<CR>   " Ctrl-N Toggle NERD tree
+" NERD Tree
+noremap <C-n> :NERDTreeTabsToggle<CR>     " Ctrl-N Toggle NERD tree
+inoremap <C-n> :NERDTreeTabsToggle<CR>    " Ctrl-N Toggle NERD tree
 
-map <C-K> :pyf ~/.scripts/clang-format.py<cr>
-imap <C-K> <c-o>:pyf ~/.scripts/clang-format.py<cr>
+" clang-format
+map <C-K> :pyf ~/.scripts/clang-format.py<CR>
+imap <C-K> <c-o>:pyf ~/.scripts/clang-format.py<CR>
+
+" learn vim the hard way: disable arrow keys
+map <up> <nop>
+map <down> <nop>
+map <left> <nop>
+map <right> <nop>
+imap <up> <nop>
+imap <down> <nop>
+imap <left> <nop>
+imap <right> <nop>
 
 "--------------------------------------------------------------
 " Search
