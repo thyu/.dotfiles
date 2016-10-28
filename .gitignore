@@ -1,0 +1,10 @@
+# ignore all .git except the original one
+.git
+!./.git
+
+# Compiled Python files
+*.pyc
+
+# Folder view config
+Desktop.ini
+.DS_Store

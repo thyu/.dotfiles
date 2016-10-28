@@ -7,22 +7,30 @@
 "--------------------------------------------------------------
 " Look and feel
 "--------------------------------------------------------------
-set background=dark       " dark background
-colorscheme elflord       " set color scheme
+set background=dark             " dark background
+colorscheme lucius              " set color scheme
 
+" vim-airline
+set laststatus=2                " necessary for showing airline
+let g:airline_theme='molokai'   " airline theme
+let g:airline#extensions#tabline#enabled=1 "enable tabline 
 
 "--------------------------------------------------------------
 " General
 "--------------------------------------------------------------
-set nocompatible          " turn compatibility mode off
-set autoread              " auto reload when changed externally
-set history=1000          " 1000 steps of history
+set nocompatible                " turn compatibility mode off
+set autoread                    " auto-reload on external change
+set history=1000                " 1000 steps of history
+set confirm                     " confirm if closing unsaved
+
+" Load pathogen
+execute pathogen#infect() 
 
 
 "--------------------------------------------------------------
 " Syntax
 "--------------------------------------------------------------
-syntax enable             " syntax based highlighting
+syntax enable                   " syntax based highlighting
 
 
 "--------------------------------------------------------------
@@ -30,7 +38,7 @@ syntax enable             " syntax based highlighting
 "--------------------------------------------------------------
 set tabstop=2             " tab size
 set softtabstop=2         " soft tab size
-set shiftwidth=4          " shiftwidth
+set shiftwidth=2          " shiftwidth
 set expandtab             " expand tab to space
 filetype plugin on        " enable filetype plugin
 filetype indent on        " set language based indent
@@ -56,9 +64,23 @@ set lazyredraw            " marco runs faster
 set so=7                  " up/down margin
 set mat=2                 " cursor blinking frequency
 
-" move vertically by visual line
+"--------------------------------------------------------------
+" Key Mapping
+"--------------------------------------------------------------
+
+" Move vertically by visual line
 nnoremap j gj
 nnoremap k gk
+
+noremap <C-t> :tabnew<CR>       " Ctrl-T : open new tab
+noremap <C-w> :tabclose<CR>     " Ctrl-W : close tab
+inoremap <C-t> :tabnew<CR>      " Ctrl-T : open new tab
+inoremap <C-w> :tabclose<CR>    " Ctrl-W : close tab
+
+noremap <C-n> :NERDTreeTabsToggle<CR>   " Ctrl-N Toggle NERD tree
+
+map <C-K> :pyf ~/.scripts/clang-format.py<cr>
+imap <C-K> <c-o>:pyf ~/.scripts/clang-format.py<cr>
 
 "--------------------------------------------------------------
 " Search
