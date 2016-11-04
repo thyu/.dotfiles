@@ -74,9 +74,9 @@ nnoremap k gk
 
 " Tab controls
 noremap <C-t> :tabnew<CR>       " Ctrl-T : open new tab
-noremap <C-w> :tabclose<CR>     " Ctrl-W : close tab
+noremap <C-q> :tabclose<CR>     " Ctrl-Q : close tab
 inoremap <C-t> :tabnew<CR>      " Ctrl-T : open new tab
-inoremap <C-w> :tabclose<CR>    " Ctrl-W : close tab
+inoremap <C-q> :tabclose<CR>    " Ctrl-Q : close tab
 
 " NERD Tree
 noremap <C-n> :NERDTreeTabsToggle<CR>     " Ctrl-N Toggle NERD tree
