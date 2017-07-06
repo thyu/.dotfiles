@@ -36,33 +36,34 @@ syntax enable                   " syntax based highlighting
 "--------------------------------------------------------------
 " Spaces and Tabs
 "--------------------------------------------------------------
-set tabstop=2             " tab size
-set softtabstop=2         " soft tab size
-set shiftwidth=2          " shiftwidth
-set expandtab             " expand tab to space
-filetype plugin on        " enable filetype plugin
-filetype indent on        " set language based indent
+set tabstop=2                   " tab size
+set softtabstop=2               " soft tab size
+set shiftwidth=2                " shiftwidth
+set expandtab                   " expand tab to space
+set backspace=indent,eol,start  " fix backspace
+filetype plugin on              " enable filetype plugin
+filetype indent on              " set language based indent
 
 " line break
-set lbr                   " do not break in the middle of word
-set tw=500                " width = 500
-set ai                    " auto indent
-set si                    " smart indent
-set wrap                  " wraplines
-set linebreak             " soft line break
-set nolist                " soft line break
+set lbr                         " do not break in the middle of word
+set tw=500                      " width = 500
+set ai                          " auto indent
+set si                          " smart indent
+set wrap                        " wraplines
+set linebreak                   " soft line break
+set nolist                      " soft line break
 
 "--------------------------------------------------------------
 " UI Config
 "--------------------------------------------------------------
-set number                " line number
-set ruler                 " display current location
-set showcmd               " show cmd line
-set cursorline            " highlight the current line
-set showmatch             " show matching parenthesis
-set lazyredraw            " marco runs faster
-set so=7                  " up/down margin
-set mat=2                 " cursor blinking frequency
+set number                      " line number
+set ruler                       " display current location
+set showcmd                     " show cmd line
+set cursorline                  " highlight the current line
+set showmatch                   " show matching parenthesis
+set lazyredraw                  " marco runs faster
+set so=7                        " up/down margin
+set mat=2                       " cursor blinking frequency
 
 "--------------------------------------------------------------
 " Key Mapping
