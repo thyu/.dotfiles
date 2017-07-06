@@ -130,4 +130,5 @@ set tm=500
 " set backup
 silent !mkdir ~/.vim_backup > /dev/null 2>&1
 set backupdir=~/.vim_backup//
+set undodir=~/.vim_backup//
 set directory=~/.vim_backup//
