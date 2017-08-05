@@ -36,9 +36,9 @@ syntax enable                   " syntax based highlighting
 "--------------------------------------------------------------
 " Spaces and Tabs
 "--------------------------------------------------------------
-set tabstop=2                   " tab size
-set softtabstop=2               " soft tab size
-set shiftwidth=2                " shiftwidth
+set tabstop=4                   " tab size
+set softtabstop=4               " soft tab size
+set shiftwidth=4                " shiftwidth
 set expandtab                   " expand tab to space
 set backspace=indent,eol,start  " fix backspace
 filetype plugin on              " enable filetype plugin
