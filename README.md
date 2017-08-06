@@ -1,3 +1,5 @@
 # Installation
 
-```$./sync.sh ```
+```
+$ python setup.py
+```
