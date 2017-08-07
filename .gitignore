@@ -8,3 +8,6 @@
 # Folder view config
 Desktop.ini
 .DS_Store
+
+# Downloaded packages
+user_data/packages

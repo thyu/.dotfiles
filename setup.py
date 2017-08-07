@@ -9,7 +9,13 @@ import shutil
 import subprocess
 import time 
 
-SYNC_SRC = '.'
+# import in-house packages
+thisDir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(thisDir, 'user_data/scripts'))
+
+import lazy.test
+
+SYNC_SRC = thisDir
 
 SYNC_DST = os.path.expanduser('~')
 
@@ -49,18 +55,22 @@ def _copyPaths(srcFilePaths, dstFilePaths):
         sys.stdout.flush()
         shutil.copy2(srcFilePaths[i], dstFilePaths[i])
     print()
+    print('Finished copying {} files'.format(len(dstFilePaths)))
 
 def _runCommand(args):
     process = subprocess.Popen(args)
     return process.communicate()
 
 def updateFromGit():
+    cwd = os.getcwd()
+    os.chdir(thisDir)
     print('>>> Fetching updates from git...')
-    print(_runCommand(['git','fetch','origin']))
+    _runCommand(['git','fetch','origin'])
     print('>>> Checking out the latest master...')
-    print(_runCommand(['git','checkout','master']))
+    _runCommand(['git','checkout','master'])
     print('>>> Rebasing the lastest master...')
-    print(_runCommand(['git','rebase','origin/master']))
+    _runCommand(['git','rebase','origin/master'])
+    os.chdir(cwd)
 
 def confirmUser():
     print('>>> WARNING: This may overwrite existing files in your home directory!')
@@ -73,6 +83,7 @@ def confirmUser():
 
 # TODO: use .lazy to setup instead of copy files
 def install():
+    lazy.test.installBashPowerline()
     pass
 
 # TODO: keep backup?
@@ -89,6 +100,7 @@ def main():
         updateFromGit()
         install()
         syncFolder(SYNC_SRC, SYNC_DST, IGNORE)
+        print('\nSetup complete, please restart your shell for the applied changes to take effect.')
 
 if __name__ == '__main__':
     main()

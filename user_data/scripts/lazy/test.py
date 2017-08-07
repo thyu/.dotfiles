@@ -3,6 +3,23 @@ import sys
 import subprocess
 import shlex
 
+class op:
+    def __init__(self, name):
+        self.name = name
+        pass
+    def run():
+        pass
+
+class shellOp:
+    def __init__(self, name):
+        self.name = 'shellCommand'
+        # do translation
+    def run():
+        pass
+
+class opFactory():
+    pass
+
 # TODO: command runner
 def runCommand(cmd, verbose = False):
     print('Running command "{}" ... '.format(cmd))
@@ -27,45 +44,43 @@ def readShellRC():
     rc = [line.strip() for line in rc]
     return rc
 
-def insertToRC(rc, lines):
-    if (not isinstance(lines, list)):
-        lines = [ lines ]
-    _generatedStart = '#### << .LAZY GENERATED CONTENT BEGINS >> ####'
-    _generatedEnd = '#### << .LAZY GENERATED CONTENT ENDS >> ####'
+def sourceConfigInProfile(rc, sourceLine):
+    rcSectionHead = '#### Run .dotfilesrc (automatically generated, do not edit)'
     try:
         # search for generated secion
         # TODO: search substring instead of exact
-        startIds = rc.index(_generatedStart)
-        endIdx = rc.index(_generatedEnd)
+        startIdx = rc.index(rcSectionHead)
+        rc[startIdx + 1] = sourceLine
     except:
         # if not found, append section
-        rc = rc + [_generatedStart, _generatedEnd]
-        startIdx = len(rc) - 2
-        endIdx = len(rc) - 1
-    generatedRcLines = rc[startIdx + 1:endIdx]
-    rc[startIdx + 1 : startIdx + 1] = lines
-    print('\n'.join(generatedRcLines))
+        rc = rc + [rcSectionHead, sourceLine]
     return rc
 
 def saveToRC(rc):
     with open(os.path.join(getHomeDir(), '.bashrc'), 'w') as f:
         f.write('\n'.join(rc))
 
-def main():
+def writeConfigFile(configLines):
+    with open(os.path.join(getHomeDir(), 'user_data/.dotrc'), 'w') as f:
+        f.write('\n'.join(configLines))
 
-    root = os.path.expanduser('~/.dotfiles')
+def installBashPowerline():
 
+    root = os.path.join(getHomeDir(), '.dotfiles')
+    
     commands = [
-        'rm -rf ' + os.path.join(root, '.scripts/bash-powerline'),
-        'git clone https://github.com/riobard/bash-powerline ' + os.path.join(root, '.scripts/bash-powerline')
+        'rm -rf ' + os.path.join(root, 'user_data/packages/bash-powerline/'),
+        'git clone https://github.com/riobard/bash-powerline ' + os.path.join(root, 'user_data/packages/bash-powerline/')
     ]
 
     for command in commands:
         runCommand(command)
 
+    # setup .dotfilesrc file
     rc = readShellRC()
-    rc = insertToRC(rc, '. ~/.scripts/bash-powerline/bash-powerline.sh')
+    rc = sourceConfigInProfile(rc, 'source ~/user_data/.dotrc')
     saveToRC(rc)
 
-if __name__ == '__main__':
-    main()
+    # write .dotfilesrc
+    configLines = ['source ~/userdata/packages/bash-powerline/bash-powerline.sh']
+    writeConfigFile(configLines)
