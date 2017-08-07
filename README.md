@@ -19,4 +19,5 @@ $ python setup.py
     - vim-airline  
     - vim-airline-themes  
     - vim-fugitive  
+    - vim-colorschemes (selected themes only)
   
