@@ -83,6 +83,9 @@ def confirmUser():
 
 # TODO: use .lazy to setup instead of copy files
 def install():
+    userDataDir = os.path.join(os.path.expanduser('~'), 'user_data/')
+    if (not os.path.exists(userDataDir)):
+        os.makedirs(os.path.join(os.path.expanduser('~'), 'user_data/'))
     lazy.test.installBashPowerline()
     pass
 

@@ -67,14 +67,21 @@ def writeConfigFile(configLines):
 def installBashPowerline():
 
     root = os.path.join(getHomeDir(), '.dotfiles')
-    
+ 
+    pkgDir = os.path.join(root, 'user_data/packages/')
+    oldDir = os.getcwd()
+    if (not os.path.exists(pkgDir)):
+        os.makedirs(pkgDir)
+    os.chdir(pkgDir)
     commands = [
-        'rm -rf ' + os.path.join(root, 'user_data/packages/bash-powerline/'),
-        'git clone https://github.com/riobard/bash-powerline ' + os.path.join(root, 'user_data/packages/bash-powerline/')
+        'rm -rf ' + os.path.join(pkgDir, 'bash-powerline/'),
+        'git clone https://github.com/riobard/bash-powerline'
     ]
 
     for command in commands:
         runCommand(command)
+
+    os.chdir(oldDir)
 
     # setup .dotfilesrc file
     rc = readShellRC()
@@ -82,5 +89,5 @@ def installBashPowerline():
     saveToRC(rc)
 
     # write .dotfilesrc
-    configLines = ['source ~/userdata/packages/bash-powerline/bash-powerline.sh']
+    configLines = ['source ~/user_data/packages/bash-powerline/bash-powerline.sh']
     writeConfigFile(configLines)
