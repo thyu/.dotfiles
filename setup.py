@@ -50,7 +50,7 @@ def _copyPaths(srcFilePaths, dstFilePaths):
     for i in range(0, len(srcFilePaths)):
         dstDir = os.path.dirname(dstFilePaths[i])
         if not os.path.exists(dstDir) or not os.path.isdir(dstDir):
-            os.makedirs(dstDir, 0711)
+            os.makedirs(dstDir, 0o711)
         print('>>> Copying file [{:4d} / {:4d}] {:<64}' .format(i + 1, len(dstFilePaths), os.path.basename(dstFilePaths[i])), end = '\r')
         sys.stdout.flush()
         shutil.copy2(srcFilePaths[i], dstFilePaths[i])
