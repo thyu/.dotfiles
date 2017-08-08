@@ -67,7 +67,7 @@ class GitcloneOp(Op):
         if not dirIsRepo:
             print(runCommand(['git', 'init']))
             print(runCommand(['git', 'remote', 'add', 'origin', giturl]))
-            print(runCommand(['git', 'fetch']))
+            print(runCommand(['git', 'fetch', 'origin']))
             print(runCommand(['git', 'checkout', '-t', 'origin/master']))
         else:
             print('Repo already exists in {}'.format(repodir))
@@ -93,7 +93,7 @@ class GitupdateOp(Op):
             dirIsRepo = runCommand(['git', 'rev-parse'])['returncode'] == 0
             if (dirIsRepo):
                 print(runCommand(['git', 'checkout', 'master']))
-                print(runCommand(['git', 'fetch']))
+                print(runCommand(['git', 'fetch', 'origin']))
                 print(runCommand(['git', 'checkout', '-t', 'origin/master']))
             ChdirOp([prevcwd]).run()
         # if repo dir does not exist, try clone

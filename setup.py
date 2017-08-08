@@ -86,12 +86,14 @@ def _setupRunCommandFile():
 def updateFromGit():
     cwd = os.getcwd()
     os.chdir(thisDir)
+    print('>>> Stashing changes')
+    _runCommand(['git','stash'])
     print('>>> Fetching updates from git...')
     _runCommand(['git','fetch','origin'])
     print('>>> Checking out the latest master...')
-    _runCommand(['git','checkout','master'])
-    print('>>> Rebasing the lastest master...')
-    _runCommand(['git','rebase','origin/master'])
+    _runCommand(['git','checkout','-t', 'origin/master'])
+    print('>>> Unstashing changes')
+    _runCommand(['git','stash', 'pop'])
     os.chdir(cwd)
 
 def confirmUser():
