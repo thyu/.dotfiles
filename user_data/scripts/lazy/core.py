@@ -4,7 +4,7 @@ import subprocess
 import shlex
 
 def _nicePath(path):
-    return os.path.realpath(os.path.normpath(os.path.expanduser(path)))
+    return os.path.normpath(os.path.expanduser(path))
 
 class Op(object):
     def __init__(self, name):
@@ -33,6 +33,46 @@ class ChdirOp(Op):
             self.args = ['.']
         os.chdir(_nicePath(self.args[0]))
 
+class MkdirOp(Op):
+    def __init__(self, args):
+        super(MkdirOp, self).__init__('MkdirOp')
+        self.args = args
+    def __str__(self):
+        return self.name + ' ' + ' '.join(self.args)
+    def run(self):
+        if not self.args:
+            raise Exception('MkdirOp requires 1 arguments')
+        path = _nicePath(self.args[0])
+        if not os.path.exists(path):
+            os.makedirs(path)
+        elif not os.path.isdir(path):
+            raise Exception('Path {} exists, but it is not a directory'.format(path))
+
+class GitcloneOp(Op):
+    def __init__(self, args):
+        super(GitcloneOp, self).__init__('GitcloneOp')
+        self.args = args
+    def __str__(self):
+        return self.name + ' ' + ' '.join(self.args)
+    def run(self):
+        if (len(self.args) < 2):
+            raise Exception('Invalid argument(s): clone origin URL and destination path are required')
+        # get url and repo path 
+        repodir = _nicePath(self.args[0])
+        giturl = self.args[1]
+        MkdirOp([repodir]).run()    # if repo dir does not exist, create it
+        prevcwd = os.getcwd()
+        ChdirOp([repodir]).run()
+        dirIsRepo = runCommand(['git', 'rev-parse'])['returncode'] == 0
+        if not dirIsRepo:
+            print(runCommand(['git', 'init']))
+            print(runCommand(['git', 'remote', 'add', 'origin', giturl]))
+            print(runCommand(['git', 'fetch']))
+            print(runCommand(['git', 'checkout', '-t', 'origin/master']))
+        else:
+            print('Repo already exists in {}'.format(repodir))
+        ChdirOp([prevcwd]).run()
+
 class GitupdateOp(Op):
     def __init__(self, args):
         super(GitupdateOp, self).__init__('GitupdateOp')
@@ -40,24 +80,33 @@ class GitupdateOp(Op):
     def __str__(self):
         return self.name + ' ' + ' '.join(self.args)
     def run(self):
-        print(os.getcwd())
-        # get repo dir, if repo dir is not defined, assume current directory
-        if (len(self.args) < 2):
-            self.args.append('.')
-        repoDir = _nicePath(self.args[1])
-        dirIsRepo = runCommand(['git','-C', repoDir,'rev-parse'])['returncode'] == 0
-        if (dirIsRepo):
-            print(runCommand(['git', '-C', repoDir, 'checkout', 'master']))
-            print(runCommand(['git', '-C', repoDir, 'pull', 'origin']))
-        else:
-            runCommand(['git', 'clone', self.args[0], repoDir])
+        # get repo dir and (optionally) git repo url
+        giturl = None
+        if not self.args:
+            raise Exception('Invalid arguments')
+        repodir = _nicePath(self.args[0])
+        giturl = self.args[1] if len(self.args) > 1 else None
+        # if repo dir exists, try update
+        if os.path.exists(repodir):
+            prevcwd = os.getcwd()
+            ChdirOp([repodir]).run()
+            dirIsRepo = runCommand(['git', 'rev-parse'])['returncode'] == 0
+            if (dirIsRepo):
+                print(runCommand(['git', 'checkout', 'master']))
+                print(runCommand(['git', 'fetch']))
+                print(runCommand(['git', 'checkout', '-t', 'origin/master']))
+            ChdirOp([prevcwd]).run()
+        # if repo dir does not exist, try clone
+        else: 
+            GitcloneOp(self.args).run()
 
 def parseLazyCommand(cmd):
     buildList = {
         '#shell' : lambda args: ShellOp(args),
         '#gitupdate' : lambda args: GitupdateOp(args),
         '#cd' : lambda args: ChdirOp(args),
-        'cd' : lambda args: ChdirOp(args)
+        'cd' : lambda args: ChdirOp(args),
+        '#mkdir' : lambda args : MkdirOp(args)
     }
     args = shlex.split(cmd)
     if args[0] in buildList:
@@ -93,6 +142,7 @@ def runLazy(config):
         updateStartupScript(config['startup']['path'], config['startup']['section'], config['startup']['config'])
     # TODO: run parallel?
     for cmd in config['commands']:
+        print('RUN OPERATOR "{}"'.format(cmd))
         parseLazyCommand(cmd).run()
     os.chdir(originalCwd) # reset cwd
 
@@ -135,8 +185,9 @@ def writeStartupScript(startupScriptPath, startupScriptObj):
 def installBashPowerline():
     installation = {
         'commands' : [
+            '#mkdir ~/.dotfiles/user_data/packages',
             'cd ~/.dotfiles/user_data/packages',
-            '#gitupdate https://github.com/riobard/bash-powerline'
+            '#gitupdate ~/.dotfiles/user_data/packages/bash-powerline https://github.com/riobard/bash-powerline'
         ],
         'startup' : {
             'path' : '~/.dotfiles/user_data/.dotrc',
