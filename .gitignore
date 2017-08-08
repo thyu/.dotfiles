@@ -11,3 +11,6 @@ Desktop.ini
 
 # Downloaded packages
 user_data/packages
+
+# dotrc shall be generated
+user_data/.dotrc

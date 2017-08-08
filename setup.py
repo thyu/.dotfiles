@@ -13,7 +13,7 @@ import time
 thisDir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(thisDir, 'user_data/scripts'))
 
-import lazy.test
+import lazy
 
 SYNC_SRC = thisDir
 
@@ -61,6 +61,28 @@ def _runCommand(args):
     process = subprocess.Popen(args)
     return process.communicate()
 
+def _getHomeDir():
+    return os.path.expanduser('~')
+
+def _setupRunCommandFile():
+    rcFileName = '.bashrc'
+    rcPath = os.path.join(_getHomeDir(), rcFileName)
+    rclines = open(rcPath, 'r').readlines()
+    rclines = [line.strip() for line in rclines]
+    # define header 
+    rcSectionHead = '#### Source config user_data/.dotrc (automatically generated, do not edit)'
+    rcSourceLine = 'source ~/user_data/.dotrc'
+    try:
+        # search for generated secion
+        # TODO: search substring instead of exact
+        startIdx = rclines.index(rcSectionHead)
+        rclines[startIdx + 1] = rcSourceLine
+    except:
+        # if not found, append section
+        rclines = rclines + [rcSectionHead, rcSourceLine]
+    with open(rcPath, 'w') as f:
+        f.write('\n'.join(rclines))
+
 def updateFromGit():
     cwd = os.getcwd()
     os.chdir(thisDir)
@@ -83,10 +105,12 @@ def confirmUser():
 
 # TODO: use .lazy to setup instead of copy files
 def install():
+    
     userDataDir = os.path.join(os.path.expanduser('~'), 'user_data/')
     if (not os.path.exists(userDataDir)):
         os.makedirs(os.path.join(os.path.expanduser('~'), 'user_data/'))
-    lazy.test.installBashPowerline()
+    _setupRunCommandFile()
+    lazy.installBashPowerline()
     pass
 
 # TODO: keep backup?
