@@ -57,10 +57,6 @@ def _copyPaths(srcFilePaths, dstFilePaths):
     print()
     print('Finished copying {} files'.format(len(dstFilePaths)))
 
-def _runCommand(args):
-    process = subprocess.Popen(args)
-    return process.communicate()
-
 def _getHomeDir():
     return os.path.expanduser('~')
 
@@ -84,17 +80,14 @@ def _setupRunCommandFile():
         f.write('\n'.join(rclines))
 
 def updateFromGit():
-    cwd = os.getcwd()
-    os.chdir(thisDir)
-    print('>>> Stashing changes')
-    _runCommand(['git','stash'])
-    print('>>> Fetching updates from git...')
-    _runCommand(['git','fetch','origin'])
-    print('>>> Checking out the latest master...')
-    _runCommand(['git','checkout','-t', 'origin/master'])
-    print('>>> Unstashing changes')
-    _runCommand(['git','stash', 'pop'])
-    os.chdir(cwd)
+    updateThisGit = {
+        'commands' : [
+            '#mkdir ~/.dotfiles/',
+            'cd ~/.dotfiles/',
+            '#gitupdate .'
+        ]
+    }
+    lazy.runLazy(updateThisGit)
 
 def confirmUser():
     print('>>> WARNING: This may overwrite existing files in your home directory!')

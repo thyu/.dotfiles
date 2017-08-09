@@ -2,21 +2,37 @@ import os
 import sys
 import subprocess
 import shlex
+import time
 
 def _nicePath(path):
     return os.path.normpath(os.path.expanduser(path))
 
 class Op(object):
-    def __init__(self, name):
+    def __init__(self, name, args):
         self.name = name
-        pass
+        if not isinstance(args, list):
+            args = [args]
+        self.args = args
     def run(self):
+        print('RUN!')
         pass
+
+class SleepOp(Op):
+    def __init__(self, args):
+        super(SleepOp, self).__init__('SleepOp', args)
+    def __str__(self):
+        return self.name + ' ' + ' '.join(self.args)
+    def run(self):
+        if not self.args:
+            raise Exception('SleepOp requires 1 arguments')
+        try:
+            time.sleep(float(self.args[0]))
+        except:
+            raise Exception('Invalid sleep duration')
 
 class ShellOp(Op):
     def __init__(self, args):
-        super(ShellOp, self).__init__('ShellOp')
-        self.args = args
+        super(ShellOp, self).__init__('ShellOp', args)
     def __str__(self):
         return self.name + ' ' + ' '.join(self.args)
     def run(self):
@@ -24,8 +40,7 @@ class ShellOp(Op):
 
 class ChdirOp(Op):
     def __init__(self, args):
-        super(ChdirOp, self).__init__('ChdirOp')
-        self.args = args
+        super(ChdirOp, self).__init__('ChdirOp', args)
     def __str__(self):
         return self.name + ' ' + ' '.join(self.args)
     def run(self):
@@ -35,8 +50,7 @@ class ChdirOp(Op):
 
 class MkdirOp(Op):
     def __init__(self, args):
-        super(MkdirOp, self).__init__('MkdirOp')
-        self.args = args
+        super(MkdirOp, self).__init__('MkdirOp', args)
     def __str__(self):
         return self.name + ' ' + ' '.join(self.args)
     def run(self):
@@ -48,10 +62,22 @@ class MkdirOp(Op):
         elif not os.path.isdir(path):
             raise Exception('Path {} exists, but it is not a directory'.format(path))
 
+class ConfigOp(Op):
+    def __init__(self, args):
+        super(ConfigOp, self).__init__('ConfigOp', args)
+    def __str__(self):
+        return self.name + ' ' + ' '.join(self.args)
+    def run(self):
+        if len(self.args) < 3:
+            raise Exception('ConfigOp requires at least 3 arguments')
+        configPath = _nicePath(self.args[0])
+        sectionName = self.args[1]
+        configContent = self.args[2:]
+        updateStartupScript(configPath, sectionName, configContent)
+
 class GitcloneOp(Op):
     def __init__(self, args):
-        super(GitcloneOp, self).__init__('GitcloneOp')
-        self.args = args
+        super(GitcloneOp, self).__init__('GitcloneOp', args)
     def __str__(self):
         return self.name + ' ' + ' '.join(self.args)
     def run(self):
@@ -60,23 +86,23 @@ class GitcloneOp(Op):
         # get url and repo path 
         repodir = _nicePath(self.args[0])
         giturl = self.args[1]
-        MkdirOp([repodir]).run()    # if repo dir does not exist, create it
+        MkdirOp(repodir).run()    # if repo dir does not exist, create it
         prevcwd = os.getcwd()
-        ChdirOp([repodir]).run()
+        ChdirOp(repodir).run()
         dirIsRepo = runCommand(['git', 'rev-parse'])['returncode'] == 0
         if not dirIsRepo:
             print(runCommand(['git', 'init']))
             print(runCommand(['git', 'remote', 'add', 'origin', giturl]))
+            print(runCommand(['git', 'checkout', 'master']))
             print(runCommand(['git', 'fetch', 'origin']))
-            print(runCommand(['git', 'checkout', '-t', 'origin/master']))
+            print(runCommand(['git', 'rebase', 'origin/master']))
         else:
             print('Repo already exists in {}'.format(repodir))
-        ChdirOp([prevcwd]).run()
+        ChdirOp(prevcwd).run()
 
 class GitupdateOp(Op):
     def __init__(self, args):
-        super(GitupdateOp, self).__init__('GitupdateOp')
-        self.args = args
+        super(GitupdateOp, self).__init__('GitupdateOp', args)
     def __str__(self):
         return self.name + ' ' + ' '.join(self.args)
     def run(self):
@@ -89,13 +115,13 @@ class GitupdateOp(Op):
         # if repo dir exists, try update
         if os.path.exists(repodir):
             prevcwd = os.getcwd()
-            ChdirOp([repodir]).run()
+            ChdirOp(repodir).run()
             dirIsRepo = runCommand(['git', 'rev-parse'])['returncode'] == 0
             if (dirIsRepo):
                 print(runCommand(['git', 'checkout', 'master']))
                 print(runCommand(['git', 'fetch', 'origin']))
-                print(runCommand(['git', 'checkout', '-t', 'origin/master']))
-            ChdirOp([prevcwd]).run()
+                print(runCommand(['git', 'rebase', 'origin/master']))
+            ChdirOp(prevcwd).run()
         # if repo dir does not exist, try clone
         else: 
             GitcloneOp(self.args).run()
@@ -106,7 +132,9 @@ def parseLazyCommand(cmd):
         '#gitupdate' : lambda args: GitupdateOp(args),
         '#cd' : lambda args: ChdirOp(args),
         'cd' : lambda args: ChdirOp(args),
-        '#mkdir' : lambda args : MkdirOp(args)
+        '#mkdir' : lambda args : MkdirOp(args),
+        '#config' : lambda args : ConfigOp(args),
+        '#sleep' : lambda args : SleepOp(args)
     }
     args = shlex.split(cmd)
     if args[0] in buildList:
@@ -132,18 +160,19 @@ def runCommand(args, verbose = False):
     poutput = process.communicate()
     return {'returncode' : process.returncode, 'stdout' : poutput[0], 'stderr' : poutput[1] }
 
+# run lazy command recursively
 def runLazy(config):
     originalCwd = os.getcwd() # backup cwd
-    # startup
-    if 'startup' in config:
-        assert('path' in config['startup'])
-        assert('section' in config['startup'])
-        assert('config' in config['startup'])
-        updateStartupScript(config['startup']['path'], config['startup']['section'], config['startup']['config'])
-    # TODO: run parallel?
-    for cmd in config['commands']:
-        print('RUN OPERATOR "{}"'.format(cmd))
-        parseLazyCommand(cmd).run()
+    if isinstance(config, dict):
+        for key in config:
+            print('Entering section "{}"'.format(key))
+            runLazy(config[key])        # TODO: run parallel?
+    elif isinstance(config, list):
+        for command in config:
+            runLazy(command)
+    elif isinstance(config, str):
+        print('RUN OPERATOR "{}"'.format(config))
+        parseLazyCommand(config).run()
     os.chdir(originalCwd) # reset cwd
 
 def readStartupScript(startupScriptPath):
@@ -164,12 +193,6 @@ def readStartupScript(startupScriptPath):
             startupScriptObj[currentSection].append(l)
     return startupScriptObj
 
-def updateStartupScript(startupScriptPath, section, content):
-    startupScriptObj = readStartupScript(startupScriptPath)
-    startupScriptObj[section] = content
-    writeStartupScript(startupScriptPath, startupScriptObj)
-    return startupScriptObj
-
 def writeStartupScript(startupScriptPath, startupScriptObj):
     sectionMarker = '#>'
     globalSectionName = '__global__'
@@ -182,23 +205,23 @@ def writeStartupScript(startupScriptPath, startupScriptObj):
                 f.write('{} {}\n'.format(sectionMarker, sectionName))
                 f.write('\n'.join(startupScriptObj[sectionName]) + '\n\n')
 
+def updateStartupScript(startupScriptPath, section, content):
+    startupScriptObj = readStartupScript(startupScriptPath)
+    startupScriptObj[section] = content
+    writeStartupScript(startupScriptPath, startupScriptObj)
+    return startupScriptObj
+
 def installBashPowerline():
-    installation = {
-        'commands' : [
-            '#mkdir ~/.dotfiles/user_data/packages',
-            'cd ~/.dotfiles/user_data/packages',
-            '#gitupdate ~/.dotfiles/user_data/packages/bash-powerline https://github.com/riobard/bash-powerline'
-        ],
-        'startup' : {
-            'path' : '~/.dotfiles/user_data/.dotrc',
-            'section' : 'bash-powerline',
-            'config' : [ 
-                'source ~/user_data/packages/bash-powerline/bash-powerline.sh'
-            ]
-        }
-    }
+    installation = [
+        '#mkdir ~/.dotfiles/user_data/packages',
+        '#sleep 2.0',
+        'cd ~/.dotfiles/user_data/packages',
+        '#gitupdate ~/.dotfiles/user_data/packages/bash-powerline https://github.com/riobard/bash-powerline',
+        '#config ~/.dotfiles/user_data/.dotrc bash-powerline "source ~/user_data/packages/bash-powerline/bash-powerline.sh"'
+    ]
     runLazy(installation)
 
+"""
 def main():
     test = {
         'commands' : [
@@ -210,3 +233,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+"""
