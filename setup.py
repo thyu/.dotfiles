@@ -57,38 +57,6 @@ def _copyPaths(srcFilePaths, dstFilePaths):
     print()
     print('Finished copying {} files'.format(len(dstFilePaths)))
 
-def _getHomeDir():
-    return os.path.expanduser('~')
-
-def _setupRunCommandFile():
-    rcFileName = '.bashrc'
-    rcPath = os.path.join(_getHomeDir(), rcFileName)
-    rclines = open(rcPath, 'r').readlines()
-    rclines = [line.strip() for line in rclines]
-    # define header 
-    rcSectionHead = '#### Source config user_data/.dotrc (automatically generated, do not edit)'
-    rcSourceLine = 'source ~/user_data/.dotrc'
-    try:
-        # search for generated secion
-        # TODO: search substring instead of exact
-        startIdx = rclines.index(rcSectionHead)
-        rclines[startIdx + 1] = rcSourceLine
-    except:
-        # if not found, append section
-        rclines = rclines + [rcSectionHead, rcSourceLine]
-    with open(rcPath, 'w') as f:
-        f.write('\n'.join(rclines))
-
-def updateFromGit():
-    updateThisGit = {
-        'commands' : [
-            '#mkdir ~/.dotfiles/',
-            'cd ~/.dotfiles/',
-            '#gitupdate .'
-        ]
-    }
-    lazy.runLazy(updateThisGit)
-
 def confirmUser():
     print('>>> WARNING: This may overwrite existing files in your home directory!')
     while True:
@@ -98,14 +66,26 @@ def confirmUser():
         print('>>> Invalid input, please respond with "y" or "n"')
     return True if answer == 'y' else False
 
-# TODO: use .lazy to setup instead of copy files
 def install():
-    userDataDir = os.path.join(os.path.expanduser('~'), 'user_data/')
-    if (not os.path.exists(userDataDir)):
-        os.makedirs(os.path.join(os.path.expanduser('~'), 'user_data/'))
-    _setupRunCommandFile()
-    lazy.installBashPowerline()
-    pass
+    installation = [
+        [
+            '#mkdir ~/.dotfiles/',
+            'cd ~/.dotfiles/',
+            '#gitupdate .'
+        ],
+        {
+            'bash-powerline' : [
+                '#mkdir ~/.dotfiles/user_data/packages',
+                'cd ~/.dotfiles/user_data/packages',
+                '#gitupdate ~/.dotfiles/user_data/packages/bash-powerline https://github.com/riobard/bash-powerline',
+                '#config ~/.dotfiles/user_data/.dotrc bash-powerline "source ~/user_data/packages/bash-powerline/bash-powerline.sh"'
+            ],
+            'config' : [
+                '#config ~/.bashrc "dotfiles-autorun" "source ~/user_data/.dotrc"'
+            ]
+        }
+    ]
+    lazy.run(installation)
 
 # TODO: keep backup?
 def syncFolder(srcDir, dstDir, ignore):
@@ -118,7 +98,6 @@ def main():
     print('|            .dotfiles Setup               |')
     print('+------------------------------------------+')
     if (confirmUser()):
-        updateFromGit()
         install()
         syncFolder(SYNC_SRC, SYNC_DST, IGNORE)
         print('\nSetup complete, please restart your shell for the applied changes to take effect.')
