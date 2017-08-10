@@ -25,7 +25,9 @@ class NodeId():
         return thisId
 
 def tidyPath(path, cwd):
+    print('tidy path, path : {}, cwd : {}'.format(path, cwd))
     if os.path.isabs(path):
+        print('abspath!')
         return path
     else:
         return os.path.join(cwd, os.path.normpath(os.path.expanduser(path)))

@@ -9,13 +9,13 @@ import subprocess
 import json
 
 # import in-house packages
-thisDir = os.path.dirname(os.path.realpath(__file__))
+thisDir = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
 sys.path.append(os.path.join(thisDir, 'user_data/scripts'))
 
 import lazy
 
 SYNC_SRC = thisDir
-SYNC_DST = os.path.expanduser('~')
+SYNC_DST = os.path.expanduser('~').replace('\\','/')
 IGNORE = [ '.git', '.DS_Store', '.gitignore', 'setup.py', 'README.md', 'LICENSE', 'TODO' ]
 
 def _input(msg):

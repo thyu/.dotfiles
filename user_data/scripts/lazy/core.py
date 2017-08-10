@@ -20,7 +20,8 @@ class LazyNode(object):
             env = {}
         self.env = env
         if (constants.CWD not in self.env):
-            self.env[constants.CWD] = os.path.expanduser(constants.DEFAULT_STARTING_CWD)
+            # for better support in "modern" windows, replace \ with /
+            self.env[constants.CWD] = os.path.expanduser(constants.DEFAULT_STARTING_CWD).replace('\\'.'/') 
 
     def __del__(self):
         disp.log(tags = ['Node {:03d}'.format(self.id)], 
