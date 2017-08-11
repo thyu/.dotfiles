@@ -31,7 +31,7 @@ def confirmUser():
     return True if answer == 'y' else False
 
 def install():
-    content = json.load(open('./install.json', 'r'))
+    content = json.load(open(os.path.join(thisDir, 'install.json'), 'r'))
     lazy.run(content, {'sync_src' : SYNC_SRC, 'sync_dst' : SYNC_DST, 'ignoreList' : ' '.join(IGNORE)})
 
 print('+------------------------------------------+')

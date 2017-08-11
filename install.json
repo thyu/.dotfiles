@@ -1,12 +1,9 @@
 [
-    "#set here ~/.dotfiles/",
-    "#set user_data {here}/user_data",
+    "#set here {__HOME__}/.dotfiles",
+    "#set user_data {__HOME__}/user_data",
     "#set packageDir {user_data}/packages",
     "#mkdir {packageDir}",
-    [
-        "#mkdir {here}",
-        "#gitupdate {here}"
-    ],
+    "#gitupdate {here}",
     {
         "bash-powerline" : [
             "#set bash_powerline_url https://github.com/riobard/bash-powerline",
@@ -14,10 +11,8 @@
             "#config {user_data}/.dotrc bash-powerline 'source {packageDir}/bash-powerline/bash-powerline.sh'"
         ],
         "config" : [
-            "#config ~/.bashrc 'dotfiles-autorun' 'source ~/user_data/.dotrc'"
+            "#config ~/.bashrc 'dotfiles-autorun' 'source {user_data}/.dotrc'"
         ]
     },
-    [
-        "#dirsync {sync_src} {sync_dst} {ignoreList}"
-    ]
+    "#dirsync {sync_src} {sync_dst} {ignoreList}"
 ]

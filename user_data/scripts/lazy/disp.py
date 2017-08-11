@@ -75,7 +75,7 @@ def log(tags, txts, lineEnd = '\n'):
         'closure' : '[]'
     }
     msgOpts = {
-        'width' : 60,
+        'width' : 70,
         'align' : 'left',
         'color' : 'white',
         'background' : 'grey',

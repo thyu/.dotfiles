@@ -89,14 +89,14 @@ class GitcloneOp(Op):
         # get url and repo path 
         repoDir = util.tidyPath(self.args[0], env[constants.CWD])
         gitURL = self.args[1]
-        MkdirOp(repoDir).run()    # if repo dir does not exist, create it
+        MkdirOp(repoDir).run(env)    # if repo dir does not exist, create it
         dirIsRepo = util.runCommand(['git', '-C', repoDir, 'rev-parse'])['returncode'] == 0
         if not dirIsRepo:
-            util.runCommand(['git', '-C', repoDir, 'init'])
-            util.runCommand(['git', '-C', repoDir, 'remote', 'add', 'origin', gitURL])
-            util.runCommand(['git', '-C', repoDir, 'checkout', 'master'])
-            util.runCommand(['git', '-C', repoDir, 'fetch', 'origin'])
-            util.runCommand(['git', '-C', repoDir, 'rebase', 'origin/master'])
+            print(util.runCommand(['git', '-C', repoDir, 'init']))
+            print(util.runCommand(['git', '-C', repoDir, 'remote', 'add', 'origin', gitURL]))
+            print(util.runCommand(['git', '-C', repoDir, 'fetch', 'origin']))
+            print(util.runCommand(['git', '-C', repoDir, 'checkout', 'master']))
+            print(util.runCommand(['git', '-C', repoDir, 'rebase', 'origin/master']))
         else:
             print('Repo already exists in {}'.format(repoDir))
 
@@ -114,12 +114,12 @@ class GitupdateOp(Op):
         if os.path.exists(repoDir):
             dirIsRepo = util.runCommand(['git', '-C', repoDir, 'rev-parse'])['returncode'] == 0
             if (dirIsRepo):
-                util.runCommand(['git', '-C', repoDir, 'checkout', 'master'])
-                util.runCommand(['git', '-C', repoDir, 'fetch', 'origin'])
-                util.runCommand(['git', '-C', repoDir, 'rebase', 'origin/master'])
+                print(util.runCommand(['git', '-C', repoDir, 'checkout', 'master']))
+                print(util.runCommand(['git', '-C', repoDir, 'fetch', 'origin']))
+                print(util.runCommand(['git', '-C', repoDir, 'rebase', 'origin/master']))
         # if repo dir does not exist, try clone
         else: 
-            GitcloneOp(self.args).run()
+            GitcloneOp(self.args).run(env)
 
 class DirSyncOp(Op):
     def __init__(self, args):

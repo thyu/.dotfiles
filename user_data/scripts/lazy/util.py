@@ -30,11 +30,12 @@ def tidyPath(path, cwd):
         print('abspath!')
         return path
     else:
-        return os.path.join(cwd, os.path.normpath(os.path.expanduser(path)))
+        return os.path.join(cwd, os.path.normpath(os.path.expanduser(path.replace('\\','/'))))
 
 # TODO: command runner class
 def runCommand(args, verbose = False):
     import subprocess
+    print('RUN COMMAND : {}'.format(' '.join(args))) 
     stdoutRedirection = subprocess.PIPE if not verbose else None
     stderrRedirection = subprocess.PIPE if not verbose else None
     kwargs = {
