@@ -16,7 +16,7 @@ import lazy
 
 SYNC_SRC = thisDir
 SYNC_DST = os.path.expanduser('~').replace('\\','/')
-IGNORE = [ '.git', '.DS_Store', '.gitignore', 'setup.py', 'README.md', 'LICENSE', 'TODO' ]
+IGNORE = [ '.git', '.DS_Store', '.gitignore', 'setup.py', 'README.md', 'LICENSE', 'TODO', 'install.json' ]
 
 def _input(msg):
     return input(msg) if sys.version_info[0] >= 3 else raw_input(msg)
