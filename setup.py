@@ -11,12 +11,8 @@ import json
 thisDir = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
 
 # try to import LAZY (https://www.github.com/thyu/lazy)
-try: 
-    sys.path.append(os.path.join(thisDir))
-    import lazy
-except:
-    print('Error: Cannot import lazy submodule, please make sure you have the submodule cloned successfully.')
-    exit()
+sys.path.append(thisDir)
+import lazy
 
 SYNC_SRC = thisDir
 SYNC_DST = os.path.expanduser('~').replace('\\','/')
@@ -34,16 +30,12 @@ def confirmUser():
         print('>>> Invalid input, please respond with "y" or "n"')
     return True if answer == 'y' else False
 
-def install():
-    content = json.load(open(os.path.join(thisDir, 'install.json'), 'r'))
-    lazy.run(content, {'sync_src' : SYNC_SRC, 'sync_dst' : SYNC_DST, 'ignoreList' : ' '.join(IGNORE)})
-
 print('+------------------------------------------+')
 print('|            .dotfiles Setup               |')
 print('+------------------------------------------+')
 if (confirmUser()):
-    install()
+    content = json.load(open(os.path.join(thisDir, 'install.json'), 'r'))
+    lazy.run(content, sync_src =  SYNC_SRC, sync_dst = SYNC_DST, ignoreList = ' '.join(IGNORE))
     print('\nSetup complete, please restart your shell for the applied changes to take effect.')
 else:
     print('Installation canceled.')
-
