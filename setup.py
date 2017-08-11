@@ -8,11 +8,15 @@ import sys
 import subprocess
 import json
 
-# import in-house packages
 thisDir = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
-sys.path.append(os.path.join(thisDir, 'user_data/scripts'))
 
-import lazy
+# try to import LAZY (https://www.github.com/thyu/lazy)
+try: 
+    sys.path.append(os.path.join(thisDir))
+    import lazy
+except:
+    print('Error: Cannot import lazy submodule, please make sure you have the submodule cloned successfully.')
+    exit()
 
 SYNC_SRC = thisDir
 SYNC_DST = os.path.expanduser('~').replace('\\','/')
