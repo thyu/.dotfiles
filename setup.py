@@ -10,7 +10,7 @@ import json
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
 SYNC_SRC = THIS_DIR
-SYNC_DST = os.path.expanduser('~').replace('\\','/')
+SYNC_DST = os.path.realpath(os.path.expanduser('~').replace('\\','/'))
 IGNORE = [ '.git', '.DS_Store', '.gitignore', 'setup.py', 'README.md', 'LICENSE', 'TODO']
 
 def _input(msg):
@@ -26,6 +26,8 @@ def confirmUser():
     return True if answer == 'y' else False
 
 def setupDotfiles():
+    print('sync_src {}'.format(SYNC_SRC))
+    print('sync_dst {}'.format(SYNC_DST))
     pass
 
 print('+------------------------------------------+')
