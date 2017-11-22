@@ -7,16 +7,20 @@ $ python setup.py
 # Features
 
 - tmux configuration (.tmux.conf)
-- screen configuration (.screenrc)
 - utility scripts:
     - clang-format script (requires clang installation)
     - for quick git config (setup_git.sh)
-- vim:
+- vim config and plug-ins:
     - vim configuration (.vimrc)
+    - convenient keymapping for vim
+    - vim-colorschemes (default theme onedark)
     - Pathogen
-    - nerdtree
-    - vim-nerdtree-tabs
     - vim-airline
     - vim-airline-themes
+    - nerdtree
     - vim-fugitive
-    - vim-colorschemes (selected themes only)
+    - vim-cpp-enhanced-highlight
+    - ctrlp.vim
+    - goto.vim
+    - limelight.vim
+    - vim-trailing-whitespace

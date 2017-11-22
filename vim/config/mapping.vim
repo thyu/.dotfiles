@@ -10,7 +10,7 @@
 " < F6 >                Run clang-format.py
 " < F7 >                Toggle focus mode (/w Goyo)
 " < F8 >                Remove trailing whitespace
-" 
+"
 "--------------------------------------------------------------
 
 " Move vertically by visual line

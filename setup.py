@@ -3,16 +3,21 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+# TODO: better printout
+# TODO: better prompt
+# TODO: interactive
+# TODO: bash-line
+
 import os
 import sys
 import subprocess
 import tempfile
 import shutil
 
-THIS_DIR = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
-SYNC_SRC = os.path.join(THIS_DIR, '.install')
-SYNC_DST = os.path.realpath(os.path.expanduser('~').replace('\\','/'))
-BLACKLIST = []
+DOT_DIR = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
+HOME_DIR = os.path.realpath(os.path.expanduser('~')).replace('\\','/')
+GIT = 'git'
+LN = 'ln'
 
 def _input(msg):
     return input(msg) if sys.version_info[0] >= 3 else raw_input(msg)
@@ -26,7 +31,35 @@ def confirmUser():
         print('>>> Invalid input, please respond with "y" or "n"')
     return True if answer == 'y' else False
 
-def syncFolder(srcDir, dstDir, blacklist):
+def makeDirectories(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+def removePath(path):
+    if os.path.exists(path):
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.islink(path):
+            os.unlink(path)
+        else:
+            os.remove(path)
+
+def github(path = ''):
+    return github('' + path
+
+def dotPath(name = ''):
+    return os.path.join(DOT_DIR, name)
+
+def pkgPath(name = ''):
+    return dotPath(os.path.join('data/packages', name))
+
+def homePath(name = ''):
+    return os.path.join(HOME_DIR, name)
+
+def vimPath(name = ''):
+    return dotPath(os.path.join('vim', name))
+
+def syncFolder(srcDir, dstDir, blacklist = []):
     print('Updating from {} to {}'.format(srcDir, dstDir))
     # compute sync paths
     syncPaths = []
@@ -36,17 +69,18 @@ def syncFolder(srcDir, dstDir, blacklist):
             relativePath = os.path.relpath(srcFileFullPath, srcDir)
             if all([x not in srcFileFullPath for x in blacklist]):
                 syncPaths.append(relativePath)
+    print('Copying file to {}: '.format(dstDir), end = '')
     for p in syncPaths:
         pSrcFile = os.path.join(srcDir, p)
         pDstFile = os.path.join(dstDir, p)
         pDstDir = os.path.dirname(pDstFile);
         if not os.path.exists(pDstDir):
-            print('mkdir ' + pDstDir)
-        print('Copying file \"{}\"'.format(p))
+            makeDirectories(pDstDir)
+        shutil.copy2(pSrcFile, pDstFile)
+        print('*', end = '')
+    print()
 
-def runCommand(scriptPath, args = [], cwd = None, verbose = True, check = True):
-    print('run script ' + scriptPath)
-    args.insert(0, scriptPath)
+def runCommand(args = [], cwd = None, verbose = False, check = True):
     stdoutRedirection = subprocess.PIPE if not verbose else None
     stderrRedirection = subprocess.PIPE if not verbose else None
     if not cwd:
@@ -59,6 +93,7 @@ def runCommand(scriptPath, args = [], cwd = None, verbose = True, check = True):
         'stderr' : stderrRedirection,   # stderr redirection
         'cwd' : cwd
     }
+    print('Run command {}'.format(' '.join(args)))
     process = subprocess.Popen(args, **kwargs)
     poutput = process.communicate()
     if check and process.returncode != 0:
@@ -69,26 +104,70 @@ def isGitInstalled():
     return True
 
 def isGitRepository(path):
-    return runCommand(['git','-C', path, 'rev-parse']) == 0
+    return runCommand([GIT,'-C', path, 'rev-parse'], check = False) == 0
 
 def updateGit(path, originURL = None):
     if (isGitRepository(path)):
-        runCommand(['git','-C', path, 'fetch', 'origin'])
-        runCommand(['git','-C', path, 'checkout', 'master'])
-        runCommand(['git','-C', path, 'rebase', 'origin/master'])
-        runCommand(['git','-C', path, 'submodule', 'update'])
+        runCommand([GIT,'-C', path, 'fetch', 'origin', 'master', 'master'])
+        runCommand([GIT,'-C', path, 'checkout', 'master'])
+        runCommand([GIT,'-C', path, 'rebase', 'origin/master'])
+        runCommand([GIT,'-C', path, 'submodule', 'update'])
     else:
         if not originURL:
             print('Origin URL is not provided, skipping git pull')
             return
         if os.path.exists(path):
             print('Path {} already exists, skipping git clone')
-        runCommand(['git','-C', path, 'init'])
-        runCommand(['git','-C', path, 'remote', 'add', 'origin', originURL])
-        runCommand(['git','-C', path, 'fetch', 'origin'])
-        runCommand(['git','-C', path, 'checkout', 'master'])
-        runCommand(['git','-C', path, 'rebase', 'origin/master'])
-        runCommand(['git','-C', path, 'submodule', 'update', '--init'])
+        makeDirectories(path)
+        runCommand([GIT,'-C', path, 'init'])
+        runCommand([GIT,'-C', path, 'remote', 'add', 'origin', originURL])
+        runCommand([GIT,'-C', path, 'fetch', 'origin', 'master', 'master'])
+        runCommand([GIT,'-C', path, 'checkout', 'master'])
+        runCommand([GIT,'-C', path, 'rebase', 'origin/master'])
+        runCommand([GIT,'-C', path, 'submodule', 'update', '--init'])
+
+def bootstrap():
+    defaultBlacklist = ['.git', 'README.md', 'LICENSE', '.gitignore', '.travis.yml']
+    # booststrap vim: install pathogen
+    updateGit(pkgPath('vim-pathogen'), github('tpope/vim-pathogen'))
+    syncFolder(pkgPath('vim-pathogen/autoload'), vimPath('autoload'), defaultBlacklist)
+    # colorschemes
+    updateGit(pkgPath('vim-colorschemes'), github('flazz/vim-colorschemes.git'))
+    syncFolder(pkgPath('vim-colorschemes/colors'), vimPath('colors'), defaultBlacklist)
+    # vim airline
+    updateGit(pkgPath('vim-airline'), github('vim-airline/vim-airline'))
+    syncFolder(pkgPath('vim-airline'), vimPath('bundle/vim-airline'), defaultBlacklist)
+    updateGit(pkgPath('vim-airline-themes'), github('vim-airline/vim-airline-themes'))
+    syncFolder(pkgPath('vim-airline-themes'), vimPath('bundle/vim-airline-themes'), defaultBlacklist)
+    # nerd tree
+    updateGit(pkgPath('nerdtree'), github('scrooloose/nerdtree'))
+    syncFolder(pkgPath('nerdtree'), vimPath('bundle/nerdtree'), defaultBlacklist)
+    # fugitive
+    updateGit(pkgPath('vim-fugitive'), github('tpope/vim-fugitive'))
+    syncFolder(pkgPath('vim-fugitive'), vimPath('bundle/vim-fugitive'), defaultBlacklist)
+    # TODO: indent
+    # highlight
+    updateGit(pkgPath('vim-cpp-enhanced-highlight'), github('octol/vim-cpp-enhanced-highlight'))
+    syncFolder(pkgPath('vim-cpp-enhanced-highlight'), vimPath('bundle/syntax'), defaultBlacklist)
+    # ctrlp
+    updateGit(pkgPath('ctrlp.vim'), github('ctrlpvim/ctrlp.vim'))
+    syncFolder(pkgPath('ctrlp.vim'), vimPath('bundle/ctrlp'), defaultBlacklist)
+    # goyo + limelight
+    updateGit(pkgPath('goyo.vim'), github('junegunn/goyo.vim'))
+    syncFolder(pkgPath('goyo.vim'), vimPath('bundle/goyo.vim'), defaultBlacklist)
+    updateGit(pkgPath('limelight.vim'), github('junegunn/limelight.vim'))
+    syncFolder(pkgPath('limelight.vim'), vimPath('bundle/limelight'), defaultBlacklist)
+    # trailing-whitespace
+    updateGit(pkgPath('vim-trailing-whitespace'), github('bronson/vim-trailing-whitespace'))
+    syncFolder(pkgPath('vim-trailing-whitespace'), vimPath('bundle/vim-trailing-whitespace'), defaultBlacklist)
+
+def createLink(target, linkname):
+    if not os.path.exists(target):
+        raise Exception('[ERROR][createLink()] Target does not exist')
+    removePath(linkname)
+    print('Creating symbolic link:')
+    print('{} -> {}'.format(target, linkname))
+    runCommand([LN, '-s', target, linkname])
 
 def updateResourceFile(tag, values, commentPrefix = '#'):
     pass
@@ -97,11 +176,10 @@ print('+------------------------------------------+')
 print('|            .dotfiles Setup               |')
 print('+------------------------------------------+')
 if (confirmUser()):
-    # syncFolder(SYNC_SRC, SYNC_DST, BLACKLIST)
-    # runCommand(os.path.join(THIS_DIR, 'scripts/bootstrap/install_vim_plugins.sh'))
-    # install pathogen
-    tempdir = tempfile.mkdtemp()
-    updateGit(os.path.join(tempdir, 'vim-pathogen'), 'https://github.com/tpope/vim-pathogen')
-    shutil.rmtree(tempdir)
+    bootstrap()
+    createLink(vimPath(), homePath('.vim'))
+    createLink(dotPath('vimrc'), homePath('.vimrc'))
+    createLink(dotPath('tmux.conf'), homePath('.tmux.conf'))
+    print('Installation completed.')
 else:
     print('Installation canceled.')
