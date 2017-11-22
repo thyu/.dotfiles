@@ -8,3 +8,9 @@
 # Folder view config
 Desktop.ini
 .DS_Store
+
+# all bootstraped files/folders
+vim/autoload
+vim/bundle
+vim/colors
+data/packages
