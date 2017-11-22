@@ -11,13 +11,12 @@ $ python setup.py
 - utility scripts:
     - clang-format script (requires clang installation)
     - for quick git config (setup_git.sh)
-- vim: 
+- vim:
     - vim configuration (.vimrc)
     - Pathogen
-    - nerdtree  
+    - nerdtree
     - vim-nerdtree-tabs
-    - vim-airline  
-    - vim-airline-themes  
-    - vim-fugitive  
+    - vim-airline
+    - vim-airline-themes
+    - vim-fugitive
     - vim-colorschemes (selected themes only)
-  
