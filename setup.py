@@ -14,8 +14,12 @@ import subprocess
 import tempfile
 import shutil
 
-DOT_DIR = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
-HOME_DIR = os.path.realpath(os.path.expanduser('~')).replace('\\','/')
+if sys.platform == 'linux' or platform == 'linux2':
+    DOT_DIR = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
+    HOME_DIR = os.path.realpath(os.path.expanduser('~')).replace('\\','/')
+elif sys.platform == 'win32'
+    DOT_DIR = 'C:/cygwin64/home/thyu/.dotfiles'
+    HOME_DIR = 'C:/cygwin64/home/thyu'
 GIT = 'git'
 LN = 'ln'
 
@@ -37,15 +41,15 @@ def makeDirectories(path):
 
 def removePath(path):
     if os.path.exists(path):
-        if os.path.isdir(path):
-            shutil.rmtree(path)
-        elif os.path.islink(path):
+        if os.path.islink(path):
             os.unlink(path)
+        elif os.path.isdir(path):
+            shutil.rmtree(path)
         else:
             os.remove(path)
 
 def github(path = ''):
-    return github('' + path
+    return os.path.join('https://github.com/' + path)
 
 def dotPath(name = ''):
     return os.path.join(DOT_DIR, name)
@@ -106,12 +110,11 @@ def isGitInstalled():
 def isGitRepository(path):
     return runCommand([GIT,'-C', path, 'rev-parse'], check = False) == 0
 
-def updateGit(path, originURL = None):
+def updateGit(path, originURL = None, submodule = True):
     if (isGitRepository(path)):
         runCommand([GIT,'-C', path, 'fetch', 'origin', 'master', 'master'])
         runCommand([GIT,'-C', path, 'checkout', 'master'])
         runCommand([GIT,'-C', path, 'rebase', 'origin/master'])
-        runCommand([GIT,'-C', path, 'submodule', 'update'])
     else:
         if not originURL:
             print('Origin URL is not provided, skipping git pull')
@@ -124,7 +127,6 @@ def updateGit(path, originURL = None):
         runCommand([GIT,'-C', path, 'fetch', 'origin', 'master', 'master'])
         runCommand([GIT,'-C', path, 'checkout', 'master'])
         runCommand([GIT,'-C', path, 'rebase', 'origin/master'])
-        runCommand([GIT,'-C', path, 'submodule', 'update', '--init'])
 
 def bootstrap():
     defaultBlacklist = ['.git', 'README.md', 'LICENSE', '.gitignore', '.travis.yml']
