@@ -14,7 +14,7 @@ import subprocess
 import tempfile
 import shutil
 
-if sys.platform == 'linux' or platform == 'linux2':
+if sys.platform == 'linux' or sys.platform == 'linux2':
     DOT_DIR = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
     HOME_DIR = os.path.realpath(os.path.expanduser('~')).replace('\\','/')
 elif sys.platform == 'win32':
