@@ -110,7 +110,7 @@ def isGitInstalled():
 def isGitRepository(path):
     return runCommand([GIT,'-C', path, 'rev-parse'], check = False) == 0
 
-def updateGit(path, originURL = None, submodule = True):
+def updateGit(path, originURL = None):
     if (isGitRepository(path)):
         runCommand([GIT,'-C', path, 'fetch', 'origin', 'master', 'master'])
         runCommand([GIT,'-C', path, 'checkout', 'master'])
