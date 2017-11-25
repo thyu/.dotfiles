@@ -20,8 +20,8 @@ set softtabstop=4               " soft tab size
 set shiftwidth=4                " shiftwidth
 set expandtab                   " expand tab to space
 set backspace=indent,eol,start  " fix backspace
-filetype plugin on              " enable filetype plugin
-filetype indent on              " set language based indent
+" filetype plugin on              " enable filetype plugin
+" filetype indent on              " set language based indent
 
 " line break
 set lbr                         " do not break in the middle of word
