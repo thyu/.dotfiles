@@ -2,4 +2,4 @@
 set background=dark
 
 " the colorscheme name
-colorscheme onedark
+colorscheme termschool
