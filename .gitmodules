@@ -1,0 +1,6 @@
+[submodule "submodules/vim-airline"]
+	path = submodules/vim-airline
+	url = https://github.com/vim-airline/vim-airline
+[submodule "submodules/vim-plug"]
+	path = submodules/vim-plug
+	url = https://github.com/junegunn/vim-plug
