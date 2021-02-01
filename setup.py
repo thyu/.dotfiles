@@ -34,22 +34,29 @@ def setup_vim():
     shutil.copy2(VIM_PLUG_SOURCE, AUTOLOAD_DIR)
 
     # install themes
+    logging.info("Installing colorschemes")
+    shutil.copytree(SUBMODULES / "vim-colorschemes/colors", VIM_DIR / "colors")
 
-    # install plugins
+    # install plugins - we use a separate plugin_config.vim
     VIM_DIR.mkdir(parents=True, exist_ok=True)
     PLUGIN_CONFIG = VIM_DIR / "plugin_config.vim"
     with open(PLUGIN_CONFIG, "w") as f:
 
+        # start vim-plug
         f.write("call plug#begin('~/.vim/vim_plugins')\n")
 
         # vim-airline
+        logging.info("Installing vim-airline")
         f.write("Plug 'vim-airline/vim-airline'\n")
         shutil.copytree(SUBMODULES / "vim-airline", VIM_PLUGIN_DIR / "vim-airline")
 
         # vim-airline-theme
-        # f.write("Plug 'vim-airline/vim-airline-themes'\n")
-        # shutil.copytree(SUBMODULES / "vim-airline-themes", VIM_PLUGIN_DIR / "vim-airline-themes")
+        logging.info("Installing vim-airline-themes")
+        f.write("Plug 'vim-airline/vim-airline-themes'\n")
+        f.write("let g:airline_theme='cool'\n")
+        shutil.copytree(SUBMODULES / "vim-airline-themes", VIM_PLUGIN_DIR / "vim-airline-themes")
 
+        # end vim-plug
         f.write("call plug#end()\n")
 
 if __name__ == "__main__":
