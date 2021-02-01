@@ -85,8 +85,10 @@ inoremap <C-q> :tabclose<CR>    " Ctrl-Q : close tab
 nmap <tab> gt			" use tab to navigate tabs
 nmap <s-tab> gT			" use tab to navigate tabs
 
-set pastetoggle=<F2>		" F2 = Paste mode
+set pastetoggle=<F2>		    " F2 = Paste mode
 nnoremap <F3> :set spell!<CR> 	" F3 = toggle spelling check
+nnoremap <F4> :NERDTree<CR>     " F4 = NERDTree
+nnoremap <F5> :Goyo<CR>         " F5 = goyo
 
 map <up> <nop>			" disable arrow keys
 map <down> <nop> 		" disable arrow keys

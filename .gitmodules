@@ -10,3 +10,9 @@
 [submodule "submodules/vim-airline-themes"]
 	path = submodules/vim-airline-themes
 	url = https://github.com/vim-airline/vim-airline-themes
+[submodule "submodules/nerdtree"]
+	path = submodules/nerdtree
+	url = https://github.com/preservim/nerdtree
+[submodule "submodules/goyo.vim"]
+	path = submodules/goyo.vim
+	url = https://github.com/junegunn/goyo.vim

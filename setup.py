@@ -28,6 +28,7 @@ def setup_vim():
     shutil.copy2(DOTFILES_ROOT/ "vimrc", VIMRC_PATH)
 
     # setup vim-plug plugin management
+    logging.info("Configuring vim-plug")
     AUTOLOAD_DIR = VIM_DIR / "autoload"
     AUTOLOAD_DIR.mkdir(parents=True, exist_ok=True)
     VIM_PLUG_SOURCE = SUBMODULES / "vim-plug/plug.vim"
@@ -47,19 +48,37 @@ def setup_vim():
 
         # vim-airline
         logging.info("Installing vim-airline")
-        f.write("Plug 'vim-airline/vim-airline'\n")
-        shutil.copytree(SUBMODULES / "vim-airline", VIM_PLUGIN_DIR / "vim-airline")
+        DST_PATH = VIM_PLUGIN_DIR / "vim-airline"
+        f.write(f"Plug '{DST_PATH}'\n")
+        shutil.copytree(SUBMODULES / "vim-airline", DST_PATH)
 
         # vim-airline-theme
         logging.info("Installing vim-airline-themes")
-        f.write("Plug 'vim-airline/vim-airline-themes'\n")
+        DST_PATH = VIM_PLUGIN_DIR / "vim-airline-themes"
+        f.write(f"Plug '{DST_PATH}'\n")
         f.write("let g:airline_theme='cool'\n")
-        shutil.copytree(SUBMODULES / "vim-airline-themes", VIM_PLUGIN_DIR / "vim-airline-themes")
+        shutil.copytree(SUBMODULES / "vim-airline-themes", DST_PATH)
+
+        # nerdtree
+        logging.info("Installing NERDTree")
+        DST_PATH = VIM_PLUGIN_DIR / "nerdtree"
+        f.write(f"Plug '{DST_PATH}'\n")
+        shutil.copytree(SUBMODULES / "nerdtree", DST_PATH)
+
+        # goyo
+        logging.info("Installing Goyo")
+        DST_PATH = VIM_PLUGIN_DIR / "goyo.vim"
+        f.write(f"Plug '{DST_PATH}'\n")
+        shutil.copytree(SUBMODULES / "goyo.vim", DST_PATH)
 
         # end vim-plug
         f.write("call plug#end()\n")
 
+def setup_tmux() -> None:
+    pass
+
 if __name__ == "__main__":
     setup_vim()
+    setup_tmux()
     logging.info("Setup complete!")
 
