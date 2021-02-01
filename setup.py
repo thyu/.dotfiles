@@ -75,10 +75,10 @@ def setup_vim():
         f.write("call plug#end()\n")
 
 def setup_tmux() -> None:
-    pass
+    logging.info("Copying tmux.conf")
+    shutil.copy2(DOTFILES_ROOT/ "tmux.conf", Path.home() / ".tmux.conf")
 
 if __name__ == "__main__":
     setup_vim()
     setup_tmux()
     logging.info("Setup complete!")
-
