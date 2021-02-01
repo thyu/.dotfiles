@@ -4,3 +4,9 @@
 [submodule "submodules/vim-plug"]
 	path = submodules/vim-plug
 	url = https://github.com/junegunn/vim-plug
+[submodule "submodules/vim-colorschemes"]
+	path = submodules/vim-colorschemes
+	url = https://github.com/flazz/vim-colorschemes
+[submodule "submodules/vim-airline-themes"]
+	path = submodules/vim-airline-themes
+	url = https://github.com/vim-airline/vim-airline-themes
